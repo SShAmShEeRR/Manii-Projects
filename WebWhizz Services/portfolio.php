@@ -1,5 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
+    <?php
+include 'db.php';
+
+// Handle Project Inquiry Submission
+if (isset($_POST['submit_inquiry'])) {
+    $name = $conn->real_escape_string($_POST['name']);
+    
+    // Combine Country Code and Phone Number
+    $country_code = $conn->real_escape_string($_POST['country_code']);
+    $phone_number = $conn->real_escape_string($_POST['phone']);
+    $full_phone = $country_code . " " . $phone_number;
+    
+    $email = $conn->real_escape_string($_POST['email']);
+    $service = $conn->real_escape_string($_POST['service']);
+    $budget = $conn->real_escape_string($_POST['budget']);
+
+    $sql = "INSERT INTO project_inquiries (name, phone, email, service, budget) VALUES ('$name', '$full_phone', '$email', '$service', '$budget')";
+    
+    if ($conn->query($sql)) {
+        echo "<script>alert('Thanks! We will contact you shortly.');</script>";
+    } else {
+        echo "<script>alert('Error sending inquiry.');</script>";
+    }
+}
+
+// Fetch Services for Dropdown
+$services_result = $conn->query("SELECT * FROM services ORDER BY name ASC");
+?>
+```
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -429,7 +458,7 @@
                         </div>
                     </div>
 
-                    <button onclick="window.location.href='contact.php'" class="w-full bg-white text-black py-4 rounded-xl font-bold hover:bg-lime-brand transition-colors flex items-center justify-center gap-2 group">
+                    <button onclick="openInquiryForm()" class="w-full bg-white text-black py-4 rounded-xl font-bold hover:bg-lime-brand transition-colors flex items-center justify-center gap-2 group">
                         Start Similar Project 
                         <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
                     </button>
@@ -448,14 +477,74 @@
             </a>
         </div>
     </section>
+    <div id="inquiryModal" class="fixed inset-0 z-[60] flex items-center justify-center hidden p-4 bg-black/90 backdrop-blur-md">
+        <div class="bg-dark-surface w-full max-w-lg rounded-3xl p-8 border border-white/10 shadow-2xl relative">
+            <button onclick="closeInquiryForm()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            
+            <h3 class="text-2xl font-bold text-white mb-2">Start Your Project</h3>
+            <p class="text-gray-400 text-sm mb-6">Tell us a bit about what you need.</p>
+            
+            <form method="post" onsubmit="return validateInquiryForm()">
+                <div class="space-y-4">
+                    <input type="text" name="name" placeholder="Your Name" class="w-full bg-dark-bg border border-white/10 rounded-xl p-3 text-white focus:border-lime-brand outline-none" required>
+                    
+                    <div class="space-y-4"> <!-- Added spacing container -->
+    
+    <!-- Phone with Country Code -->
+    <div class="flex gap-2">
+        <select name="country_code" class="w-[100px] bg-dark-bg border border-white/10 rounded-xl p-3 text-white focus:border-lime-brand outline-none">
+            <option value="+1">+1 (USA)</option>
+            <option value="+44">+44 (UK)</option>
+            <option value="+91">+91 (IN)</option>
+            <option value="+61">+61 (AU)</option>
+            <option value="+971">+971 (UAE)</option>
+            <option value="+92">+92 (PK)</option>
+        </select>
+        <input type="text" name="phone" id="iPhone" placeholder="Phone Number" class="flex-1 bg-dark-bg border border-white/10 rounded-xl p-3 text-white focus:border-lime-brand outline-none" required>
+    </div>
+    <p id="phoneError" class="text-red-500 text-xs hidden">Please enter a valid number (7-15 digits)</p>
 
+    <!-- Email -->
+    <input type="email" name="email" id="iEmail" placeholder="Email Address" class="w-full bg-dark-bg border border-white/10 rounded-xl p-3 text-white focus:border-lime-brand outline-none" required>
+    <p id="emailError" class="text-red-500 text-xs hidden">Please enter a valid email address</p>
+
+</div>
+
+                    <!-- Dynamic Services Dropdown -->
+                    <select name="service" class="w-full bg-dark-bg border border-white/10 rounded-xl p-3 text-gray-300 focus:border-lime-brand outline-none" required>
+                        <option value="" disabled selected>Select Service Needed</option>
+                        <?php 
+                        // Reset pointer to ensure we can loop if used elsewhere
+                        $services_result->data_seek(0); 
+                        while($srv = $services_result->fetch_assoc()): 
+                        ?>
+                            <option value="<?php echo htmlspecialchars($srv['name']); ?>"><?php echo htmlspecialchars($srv['name']); ?></option>
+                        <?php endwhile; ?>
+                    </select>
+
+                    <select name="budget" class="w-full bg-dark-bg border border-white/10 rounded-xl p-3 text-gray-300 focus:border-lime-brand outline-none">
+                        <option value="" disabled selected>Estimated Budget</option>
+                        <option value="$1k - $5k">$1k - $5k</option>
+                        <option value="$5k - $10k">$5k - $10k</option>
+                        <option value="$10k+">$10k+</option>
+                    </select>
+
+                    <button type="submit" name="submit_inquiry" class="w-full bg-lime-brand text-black font-bold py-3 rounded-xl hover:bg-white transition-colors mt-2">
+                        Send Request
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
     <!-- Include Footer -->
     <?php include 'footer.php'; ?>
 
     <!-- PROJECT DATA & LOGIC -->
     <script>
         lucide.createIcons();
-
+        
         // --- PROJECT DATA STORAGE ---
         const projects = {
             'fintech': {
@@ -883,6 +972,43 @@
                     items[i].style.display = "none";
                 }
             }
+        }
+        // NEW: Inquiry Modal Functions
+        function openInquiryForm() {
+            document.getElementById('inquiryModal').classList.remove('hidden');
+        }
+        function closeInquiryForm() {
+            document.getElementById('inquiryModal').classList.add('hidden');
+        }
+        // --- FORM VALIDATION LOGIC ---
+        function validateInquiryForm() {
+            let isValid = true;
+            
+            // 1. Validate Phone
+            const phoneInput = document.getElementById('iPhone');
+            const phoneError = document.getElementById('phoneError');
+            const cleanPhone = phoneInput.value.replace(/\D/g,''); // Removes non-digits
+            
+            if (cleanPhone.length < 7 || cleanPhone.length > 15) {
+                phoneError.classList.remove('hidden');
+                isValid = false;
+            } else {
+                phoneError.classList.add('hidden');
+            }
+
+            // 2. Validate Email
+            const emailInput = document.getElementById('iEmail');
+            const emailError = document.getElementById('emailError');
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (!emailRegex.test(emailInput.value)) {
+                emailError.classList.remove('hidden');
+                isValid = false;
+            } else {
+                emailError.classList.add('hidden');
+            }
+
+            return isValid;
         }
     </script>
 </body>

@@ -1,11 +1,35 @@
+<?php
+include 'db.php'; 
+
+// Handle Review Submission
+$msg = "";
+$msgType = ""; // success or error
+
+if (isset($_POST['submit_review'])) {
+    $name = $conn->real_escape_string($_POST['name']);
+    $role = $conn->real_escape_string($_POST['role']);
+    $review = $conn->real_escape_string($_POST['review']);
+    $rating = intval($_POST['rating']);
+
+    $sql = "INSERT INTO site_reviews (name, role, review_text, rating, is_approved) VALUES ('$name', '$role', '$review', $rating, 0)";
+    
+    if ($conn->query($sql)) {
+        $msg = "Thank you! Your review has been submitted for moderation.";
+        $msgType = "success";
+    } else {
+        $msg = "Error submitting review. Please try again.";
+        $msgType = "error";
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebWhizz Services</title>
+    <title>WebWhizz Services - Digital Agency</title>
     
-    <!-- Fonts: Plus Jakarta Sans (Matches the design closely) -->
+    <!-- Fonts: Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -26,7 +50,7 @@
                         lime: {
                             400: '#a3e635',
                             500: '#84cc16',
-                            brand: '#bef264', // The specific lime green from screenshot
+                            brand: '#bef264', // The specific lime green
                         },
                         dark: {
                             card: '#1c1c1c', // Dark cards
@@ -50,7 +74,7 @@
 
 <body class="bg-white text-gray-900 antialiased selection:bg-lime-brand selection:text-black">
 <?php include 'header.php'; ?>
-    <!-- HERO SECTION (Screenshot 1) -->
+    <!-- HERO SECTION -->
     <section class="pt-16 pb-20 px-4 md:px-8 max-w-7xl mx-auto">
         
         <!-- Header Text Row -->
@@ -93,7 +117,7 @@
                     <div class="absolute bottom-8 left-8 text-white z-10">
                         <div class="flex items-center gap-2 mb-1">
                             <i data-lucide="layout-grid" class="w-6 h-6"></i>
-                            <span class="font-bold text-xl">Skyline</span>
+                            <span class="font-bold text-xl">WebWhizz</span>
                         </div>
                         <p class="text-sm opacity-80">We Are Based in<br>Oakville, USA</p>
                     </div>
@@ -101,7 +125,7 @@
                     <!-- Overlay Email Bottom Center -->
                     <div class="absolute bottom-8 left-1/3 text-white z-10 hidden md:block">
                         <p class="text-xs opacity-60 uppercase tracking-wider mb-1">Let's Talk</p>
-                        <p class="font-medium">skyline@gmail.com</p>
+                        <p class="font-medium">webwhizzservices@gmail.com</p>
                     </div>
                 </div>
 
@@ -122,7 +146,7 @@
         </div>
     </section>
 
-    <!-- SERVICES SECTION (Updated: Top 4 Services in 4 Columns) -->
+    <!-- SERVICES SECTION (Top 4 Services) -->
     <section class="px-4 md:px-8 max-w-7xl mx-auto mb-20">
         <div class="bg-dark-card rounded-4xl p-8 md:p-16 text-white">
             <div class="flex flex-col md:flex-row justify-between items-start mb-16">
@@ -147,7 +171,7 @@
                     <p class="text-gray-400 text-sm leading-relaxed mb-8 flex-grow">
                         Stunning, responsive websites and mobile apps designed to convert users into customers.
                     </p>
-                    <a href="web-and-mobile-design.php" class="inline-flex items-center gap-2 text-lime-brand font-bold text-sm hover:gap-3 transition-all">
+                    <a href="web-design.php" class="inline-flex items-center gap-2 text-lime-brand font-bold text-sm hover:gap-3 transition-all">
                         Learn More <i data-lucide="arrow-right" class="w-4 h-4"></i>
                     </a>
                 </div>
@@ -161,7 +185,7 @@
                     <p class="text-gray-800 font-medium text-sm leading-relaxed mb-8 flex-grow">
                         High-performance online stores built on Shopify & WooCommerce to maximize your sales.
                     </p>
-                    <a href="e-commerce-design.php" class="inline-flex items-center gap-2 text-black font-bold text-sm hover:gap-3 transition-all">
+                    <a href="ecommerce-design.php" class="inline-flex items-center gap-2 text-black font-bold text-sm hover:gap-3 transition-all">
                         Learn More <i data-lucide="arrow-right" class="w-4 h-4"></i>
                     </a>
                 </div>
@@ -175,7 +199,7 @@
                     <p class="text-gray-400 text-sm leading-relaxed mb-8 flex-grow">
                         Full-service strategy, scheduling, and community growth to keep your brand active 24/7.
                     </p>
-                    <a href="social-media-management.php" class="inline-flex items-center gap-2 text-lime-brand font-bold text-sm hover:gap-3 transition-all">
+                    <a href="social-management.php" class="inline-flex items-center gap-2 text-lime-brand font-bold text-sm hover:gap-3 transition-all">
                         Learn More <i data-lucide="arrow-right" class="w-4 h-4"></i>
                     </a>
                 </div>
@@ -189,16 +213,23 @@
                     <p class="text-gray-400 text-sm leading-relaxed mb-8 flex-grow">
                         Visual identities, logos, and marketing collateral that make your brand unforgettable.
                     </p>
-                    <a href="graphic-designing.php" class="inline-flex items-center gap-2 text-lime-brand font-bold text-sm hover:gap-3 transition-all">
+                    <a href="graphic-design.php" class="inline-flex items-center gap-2 text-lime-brand font-bold text-sm hover:gap-3 transition-all">
                         Learn More <i data-lucide="arrow-right" class="w-4 h-4"></i>
                     </a>
                 </div>
-
             </div>
+
+            <!-- ADDED BUTTON: View All Services -->
+            <div class="mt-16 text-center">
+                <a href="services.php" class="inline-flex items-center gap-2 border border-gray-600 px-8 py-3 rounded-full font-bold hover:bg-white hover:text-black transition-colors text-white">
+                    View All <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </a>
+            </div>
+
         </div>
     </section>
 
-    <!-- WHY CHOOSE US (Screenshot 2 Top) -->
+    <!-- WHY CHOOSE US -->
     <section class="py-20 px-4 md:px-8 max-w-7xl mx-auto">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
             <!-- Left Image Cluster -->
@@ -226,7 +257,7 @@
             <div class="pl-0 md:pl-10">
                 <span class="border border-gray-300 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider">About Us</span>
                 <h2 class="text-4xl md:text-5xl font-bold mt-6 mb-6">
-                    Why You Should <br> Choose <span class="text-lime-600">Skyline</span>
+                    Why You Should <br> Choose <span class="text-lime-600">WebWhizz</span>
                 </h2>
                 <p class="text-gray-500 leading-relaxed mb-8">
                     We proudly introduce ourselves as a digital creative agency committed to realizing our clients' vision and mission through creative, innovative, and technology-based solutions in the digital world.
@@ -238,140 +269,48 @@
         </div>
     </section>
 
-    <!-- PROCESS / HOW IT WORKS (Screenshot 2 Bottom) -->
-    <section class="py-20 px-4 md:px-8 max-w-7xl mx-auto">
-        <div class="text-center mb-16">
-            <span class="border border-gray-300 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider">How It Works?</span>
-            <h2 class="text-4xl font-bold mt-6">How Do We Works?</h2>
-            <p class="text-gray-500 mt-4 max-w-2xl mx-auto text-sm">We strive to create extraordinary experiences, increase brand awareness, and optimize overall business results.</p>
-        </div>
-
-        <!-- Bento Grid Layout -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
-            <!-- 01 Smart Digital -->
-            <div class="bg-dark-card text-white p-10 rounded-3xl md:col-span-1 flex flex-col justify-between min-h-[320px]">
-                <span class="text-lime-brand text-5xl font-light opacity-50">01</span>
-                <div>
-                    <h3 class="text-xl font-bold mb-3">Smart digital <br>marketing strategy</h3>
-                    <p class="text-gray-400 text-xs leading-relaxed mb-6">Overall, we leverage technological intelligence and understanding of customer behavior.</p>
-                    <button class="bg-lime-brand text-black px-6 py-2 rounded-full text-xs font-bold flex items-center gap-2 hover:bg-lime-400 transition-colors">
-                        Learn More <i data-lucide="arrow-right" class="w-3 h-3"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Video/Image Tile -->
-            <div class="md:col-span-2 bg-gray-200 rounded-3xl overflow-hidden relative min-h-[320px] group">
-                <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2070&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
-                <div class="absolute inset-0 bg-black/20 flex items-center justify-center">
-                    <button class="w-16 h-16 bg-lime-brand rounded-full flex items-center justify-center text-black hover:scale-110 transition-transform">
-                        <i data-lucide="play" class="w-6 h-6 fill-current"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- 02 Best Web -->
-            <div class="bg-dark-card text-white p-10 rounded-3xl flex flex-col justify-between min-h-[300px]">
-                <span class="text-white text-4xl font-light opacity-50">02</span>
-                <div>
-                    <h3 class="text-lg font-bold mb-3">Best web and app <br>developers</h3>
-                    <p class="text-gray-400 text-xs leading-relaxed mb-6">We are able to create great user experiences, intuitive interfaces, and integrate features.</p>
-                    <button class="border border-gray-600 text-white px-6 py-2 rounded-full text-xs font-bold flex items-center gap-2 hover:bg-white hover:text-black transition-colors">
-                        Learn More <i data-lucide="arrow-right" class="w-3 h-3"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- 03 Visualization -->
-            <div class="bg-dark-card text-white p-10 rounded-3xl flex flex-col justify-between min-h-[300px]">
-                <span class="text-white text-4xl font-light opacity-50">03</span>
-                <div>
-                    <h3 class="text-lg font-bold mb-3">Visualization of user-<br>appealing designs</h3>
-                    <p class="text-gray-400 text-xs leading-relaxed mb-6">A user-appealing design can create a mesmerizing experience and motivate users.</p>
-                    <button class="border border-gray-600 text-white px-6 py-2 rounded-full text-xs font-bold flex items-center gap-2 hover:bg-white hover:text-black transition-colors">
-                        Learn More <i data-lucide="arrow-right" class="w-3 h-3"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- 04 Friendly Service -->
-            <div class="bg-dark-card text-white p-10 rounded-3xl flex flex-col justify-between min-h-[300px]">
-                <span class="text-white text-4xl font-light opacity-50">04</span>
-                <div>
-                    <h3 class="text-lg font-bold mb-3">Quick and friendly <br>service</h3>
-                    <p class="text-gray-400 text-xs leading-relaxed mb-6">Quick and friendly service also includes the ability to respond and handle complaints.</p>
-                    <button class="border border-gray-600 text-white px-6 py-2 rounded-full text-xs font-bold flex items-center gap-2 hover:bg-white hover:text-black transition-colors">
-                        Learn More <i data-lucide="arrow-right" class="w-3 h-3"></i>
-                    </button>
-                </div>
-            </div>
-
-        </div>
-    </section>
-
-    <!-- PROJECTS SECTION (Screenshot 3) -->
+    <!-- PROJECTS SECTION (Linked to Portfolio) -->
     <section class="py-20 px-4 md:px-8 max-w-7xl mx-auto">
         <div class="text-center mb-16">
             <span class="border border-gray-300 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider">Projects</span>
             <h2 class="text-4xl font-bold mt-6">Our Creative Digital Projects</h2>
-            <p class="text-gray-500 mt-4 max-w-lg mx-auto text-sm">Every project we work on is an opportunity to demonstrate our dedication to creating creative solutions.</p>
+            <p class="text-gray-500 mt-4 max-w-lg mx-auto text-sm">A glimpse into our recent work. Explore our full portfolio for more.</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            
-            <!-- Project 1: Medicalis (Light) -->
+            <!-- Project 1 -->
             <div class="bg-gray-100 p-8 rounded-4xl group hover:shadow-xl transition-shadow">
                 <div class="h-64 rounded-3xl bg-gray-200 mb-6 overflow-hidden">
                     <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=2070&auto=format&fit=crop" class="w-full h-full object-cover">
                 </div>
                 <h3 class="text-2xl font-bold mb-2">Medicalis App & Website</h3>
                 <p class="text-gray-500 text-xs mb-6 max-w-sm">Medicalis is here to serve your health needs. Patients will have the convenience of consulting online.</p>
-                <button class="border border-gray-300 bg-white px-6 py-2 rounded-full text-xs font-bold flex items-center gap-2">
-                    Learn More <i data-lucide="arrow-right" class="w-3 h-3"></i>
-                </button>
+                <a href="portfolio.php" class="border border-gray-300 bg-white px-6 py-2 rounded-full text-xs font-bold flex items-center gap-2 w-fit">
+                    View Project <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                </a>
             </div>
 
-            <!-- Project 2: Tesla (Dark) -->
+            <!-- Project 2 -->
             <div class="bg-dark-card text-white p-8 rounded-4xl group hover:shadow-xl transition-shadow">
                 <div class="h-64 rounded-3xl bg-gray-800 mb-6 overflow-hidden border border-gray-700">
                     <img src="https://images.unsplash.com/photo-1617788138017-80ad40651399?q=80&w=2070&auto=format&fit=crop" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity">
                 </div>
                 <h3 class="text-2xl font-bold mb-2">Tesla Car Dashboard</h3>
                 <p class="text-gray-400 text-xs mb-6 max-w-sm">You have an assistant who can accompany you throughout your journey and make it easy to manage your tesla.</p>
-                <button class="bg-lime-brand text-black px-6 py-2 rounded-full text-xs font-bold flex items-center gap-2 hover:bg-lime-400">
-                    Learn More <i data-lucide="arrow-right" class="w-3 h-3"></i>
-                </button>
+                <a href="portfolio.php" class="bg-lime-brand text-black px-6 py-2 rounded-full text-xs font-bold flex items-center gap-2 hover:bg-lime-400 w-fit">
+                    View Project <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                </a>
             </div>
+        </div>
 
-            <!-- Project 3: Musikku (Light) -->
-            <div class="bg-gray-100 p-8 rounded-4xl group hover:shadow-xl transition-shadow">
-                <div class="h-64 rounded-3xl bg-gray-200 mb-6 overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1614680376593-902f74cf0d41?q=80&w=1974&auto=format&fit=crop" class="w-full h-full object-cover">
-                </div>
-                <h3 class="text-2xl font-bold mb-2">Musikku App</h3>
-                <p class="text-gray-500 text-xs mb-6 max-w-sm">Music apps have changed the way we listen to, discover and enjoy music.</p>
-                <button class="border border-gray-300 bg-white px-6 py-2 rounded-full text-xs font-bold flex items-center gap-2">
-                    Learn More <i data-lucide="arrow-right" class="w-3 h-3"></i>
-                </button>
-            </div>
-
-            <!-- Project 4: Workoutz (Light) -->
-            <div class="bg-gray-100 p-8 rounded-4xl group hover:shadow-xl transition-shadow">
-                <div class="h-64 rounded-3xl bg-gray-200 mb-6 overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=2070&auto=format&fit=crop" class="w-full h-full object-cover">
-                </div>
-                <h3 class="text-2xl font-bold mb-2">Workoutz App</h3>
-                <p class="text-gray-500 text-xs mb-6 max-w-sm">With the innovative features provided, sports apps allow users to track physical activity.</p>
-                <button class="border border-gray-300 bg-white px-6 py-2 rounded-full text-xs font-bold flex items-center gap-2">
-                    Learn More <i data-lucide="arrow-right" class="w-3 h-3"></i>
-                </button>
-            </div>
-
+        <div class="mt-12 text-center">
+            <a href="portfolio.php" class="inline-flex items-center gap-2 border border-gray-300 px-8 py-3 rounded-full font-bold hover:bg-black hover:text-white transition-colors">
+                View All Works <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </a>
         </div>
     </section>
 
-    <!-- LATEST INSIGHTS SECTION (Added as per Screenshot 3) -->
+    <!-- LATEST INSIGHTS SECTION (Dynamic - Connected to Blog) -->
     <section class="py-20 px-4 md:px-8 max-w-7xl mx-auto">
         <div class="bg-dark-card text-white rounded-4xl p-8 md:p-12">
             <!-- Header -->
@@ -380,125 +319,121 @@
                     <span class="border border-gray-600 rounded-full px-3 py-1 text-[10px] uppercase tracking-wider text-gray-300">Blog</span>
                     <h2 class="text-3xl md:text-5xl font-bold mt-6 mb-4">Latest Insight Updates</h2>
                     <p class="text-gray-400 text-sm leading-relaxed">
-                        Follow our blog for specific topics, be it in science, technology, tips and tricks, etc. We always provide updated news and current trends.
+                        Expert advice on design, technology, and digital growth. Straight from our team to you.
                     </p>
                 </div>
-                <button class="bg-lime-brand text-black px-6 py-2 rounded-full text-xs font-bold flex items-center gap-2 hover:bg-lime-400 transition-colors whitespace-nowrap">
+                <a href="blog.php" class="bg-lime-brand text-black px-6 py-2 rounded-full text-xs font-bold flex items-center gap-2 hover:bg-lime-400 transition-colors whitespace-nowrap">
                     All Post <i data-lucide="arrow-right" class="w-3 h-3"></i>
-                </button>
+                </a>
             </div>
 
-            <!-- Blog Cards Grid -->
+            <!-- Dynamic Blog Grid -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <?php
+                // Fetch latest 3 posts
+                $latest_blogs = $conn->query("SELECT * FROM blog_posts ORDER BY created_at DESC LIMIT 3");
                 
-                <!-- Blog 1 -->
-                <div class="relative h-[400px] rounded-3xl overflow-hidden group cursor-pointer">
-                    <img src="https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=1974&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end p-6">
-                        <span class="bg-white/20 backdrop-blur-sm w-fit px-3 py-1 rounded-full text-[10px] font-bold mb-3 border border-white/10">Design</span>
-                        <h3 class="text-xl font-bold mb-2">5 things you should know in Figma</h3>
-                        <p class="text-gray-400 text-xs line-clamp-2">As a UI/UX designer, of course you shouldn't be unaware of these 5 things.</p>
-                        <div class="flex items-center gap-2 mt-4 text-lime-brand text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-2 group-hover:translate-y-0">
-                            Read More <i data-lucide="arrow-right" class="w-3 h-3"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Blog 2 -->
-                <div class="relative h-[400px] rounded-3xl overflow-hidden group cursor-pointer">
-                    <img src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=2032&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end p-6">
-                        <span class="bg-white/20 backdrop-blur-sm w-fit px-3 py-1 rounded-full text-[10px] font-bold mb-3 border border-white/10">SEO</span>
-                        <h3 class="text-xl font-bold mb-2">Building best practice for skill</h3>
-                        <p class="text-gray-400 text-xs line-clamp-2">Do you feel like your skills are lacking? Let's find out how to improve your skills.</p>
-                        <div class="flex items-center gap-2 mt-4 text-lime-brand text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-2 group-hover:translate-y-0">
-                            Read More <i data-lucide="arrow-right" class="w-3 h-3"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Blog 3 -->
-                <div class="relative h-[400px] rounded-3xl overflow-hidden group cursor-pointer">
-                    <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end p-6">
-                        <span class="bg-white/20 backdrop-blur-sm w-fit px-3 py-1 rounded-full text-[10px] font-bold mb-3 border border-white/10">Developer</span>
-                        <h3 class="text-xl font-bold mb-2">Front end developer guide</h3>
-                        <p class="text-gray-400 text-xs line-clamp-2">As a beginner, you should know the first steps when becoming a front end dev.</p>
-                        <div class="flex items-center gap-2 mt-4 text-lime-brand text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-2 group-hover:translate-y-0">
-                            Read More <i data-lucide="arrow-right" class="w-3 h-3"></i>
-                        </div>
-                    </div>
-                </div>
-
+                if ($latest_blogs && $latest_blogs->num_rows > 0) {
+                    while($row = $latest_blogs->fetch_assoc()) {
+                        ?>
+                        <a href="post.php?id=<?php echo $row['id']; ?>" class="relative h-[400px] rounded-3xl overflow-hidden group cursor-pointer block">
+                            <img src="<?php echo htmlspecialchars($row['image_url']); ?>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end p-6">
+                                <span class="bg-white/20 backdrop-blur-sm w-fit px-3 py-1 rounded-full text-[10px] font-bold mb-3 border border-white/10"><?php echo htmlspecialchars($row['category']); ?></span>
+                                <h3 class="text-xl font-bold mb-2 group-hover:text-lime-brand transition-colors"><?php echo htmlspecialchars($row['title']); ?></h3>
+                                <p class="text-gray-400 text-xs line-clamp-2"><?php echo strip_tags($row['content']); ?></p>
+                                <div class="flex items-center gap-2 mt-4 text-lime-brand text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-2 group-hover:translate-y-0">
+                                    Read More <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                                </div>
+                            </div>
+                        </a>
+                        <?php
+                    }
+                } else {
+                    // Fallback if no blogs exist
+                    echo '<p class="text-gray-500 col-span-3 text-center">No insights published yet. Check back soon!</p>';
+                }
+                ?>
             </div>
         </div>
     </section>
 
-    <!-- TESTIMONIALS (Screenshot 4 Top) -->
-    <section class="py-20 px-4 md:px-8 max-w-7xl mx-auto">
+    <!-- TESTIMONIALS SECTION (Dynamic) -->
+    <section class="py-20 px-4 md:px-8 max-w-7xl mx-auto bg-gray-50 rounded-4xl my-10 relative">
         <div class="text-center mb-16">
             <span class="border border-gray-300 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider">Testimonials</span>
             <h2 class="text-4xl font-bold mt-6">Hear From Our Clients</h2>
+            
+            <!-- Success Message -->
+            <?php if($msg): ?>
+                <div class="mt-4 <?php echo $msgType == 'success' ? 'bg-lime-100 text-lime-800 border-lime-brand' : 'bg-red-100 text-red-800 border-red-300'; ?> border px-4 py-2 rounded-lg inline-block text-sm font-bold">
+                    <?php echo $msg; ?>
+                </div>
+            <?php endif; ?>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <!-- Client 1 -->
-            <div class="bg-gray-50 p-10 rounded-3xl">
+            <?php
+            // Fetch Approved Reviews
+            $reviews = $conn->query("SELECT * FROM site_reviews WHERE is_approved = 1 ORDER BY created_at DESC LIMIT 4");
+            if ($reviews && $reviews->num_rows > 0):
+                while($row = $reviews->fetch_assoc()):
+            ?>
+            <div class="bg-white p-10 rounded-3xl shadow-sm hover:shadow-md transition-shadow">
                 <div class="flex items-center gap-4 mb-6">
-                    <img src="https://i.pravatar.cc/100?img=5" class="w-12 h-12 rounded-full">
+                    <div class="w-12 h-12 rounded-full bg-lime-brand/20 flex items-center justify-center text-lime-700 font-bold text-lg">
+                        <?php echo substr($row['name'], 0, 1); ?>
+                    </div>
                     <div>
-                        <h4 class="font-bold text-sm">Arabella Sinclair</h4>
-                        <p class="text-xs text-gray-500">Product Designer at Batalinion</p>
+                        <h4 class="font-bold text-sm"><?php echo htmlspecialchars($row['name']); ?></h4>
+                        <p class="text-xs text-gray-500"><?php echo htmlspecialchars($row['role']); ?></p>
                     </div>
                 </div>
-                <p class="text-gray-600 text-sm leading-relaxed italic">"We are very impressed with this creative agency! Working with this creative agency is not only fun, but also yields great results."</p>
+                <p class="text-gray-600 text-sm leading-relaxed italic">"<?php echo htmlspecialchars($row['review_text']); ?>"</p>
                 <div class="flex justify-between items-center mt-6">
-                    <span class="text-xs text-gray-400">10:35 • Jun 23, 2023</span>
-                    <div class="flex text-yellow-400 text-xs">★★★★★</div>
-                </div>
-            </div>
-
-            <!-- Client 2 -->
-            <div class="bg-gray-50 p-10 rounded-3xl">
-                <div class="flex items-center gap-4 mb-6">
-                    <img src="https://i.pravatar.cc/100?img=8" class="w-12 h-12 rounded-full">
-                    <div>
-                        <h4 class="font-bold text-sm">Nathaniel Jameson</h4>
-                        <p class="text-xs text-gray-500">CEO at Weakings</p>
+                    <span class="text-xs text-gray-400"><?php echo date("M d, Y", strtotime($row['created_at'])); ?></span>
+                    <div class="flex text-yellow-400 text-xs">
+                        <?php for($i=0; $i<$row['rating']; $i++) echo '★'; ?>
                     </div>
                 </div>
-                <p class="text-gray-600 text-sm leading-relaxed italic">"Great! We saw a significant increase in the number of visitors to our website and conversion rates. We highly recommend."</p>
-                <div class="flex justify-between items-center mt-6">
-                    <span class="text-xs text-gray-400">09:10 • Aug 20, 2023</span>
-                    <div class="flex text-yellow-400 text-xs">★★★★☆</div>
-                </div>
             </div>
+            <?php endwhile; else: ?>
+                <p class="text-center col-span-2 text-gray-500">No reviews yet. Be the first to write one!</p>
+            <?php endif; ?>
         </div>
 
-        <!-- Pagination Dots -->
-        <div class="flex justify-center items-center gap-2 mt-10">
-            <button class="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100">
-                <i data-lucide="chevron-left" class="w-4 h-4"></i>
+        <div class="text-center mt-12">
+            <button onclick="document.getElementById('reviewModal').classList.remove('hidden')" class="border border-gray-300 bg-white px-8 py-3 rounded-full font-bold hover:bg-black hover:text-white transition-colors">
+                Write a Review
             </button>
-            <div class="flex gap-2">
-                <div class="w-2 h-2 rounded-full bg-lime-brand"></div>
-                <div class="w-2 h-2 rounded-full bg-gray-300"></div>
-                <div class="w-2 h-2 rounded-full bg-gray-300"></div>
-            </div>
-            <button class="w-10 h-10 rounded-full bg-lime-brand flex items-center justify-center hover:bg-lime-400">
-                <i data-lucide="chevron-right" class="w-4 h-4"></i>
-            </button>
-        </div>
-
-        <!-- Logos -->
-        <div class="flex flex-wrap justify-center gap-10 md:gap-20 mt-16 opacity-50 grayscale">
-            <h3 class="text-xl font-bold">gopay</h3>
-            <h3 class="text-xl font-bold">tokopedia</h3>
-            <h3 class="text-xl font-bold">Google</h3>
-            <h3 class="text-xl font-bold">Lazada</h3>
-            <h3 class="text-xl font-bold">Shopee</h3>
         </div>
     </section>
+
+    <!-- REVIEW MODAL -->
+    <div id="reviewModal" class="fixed inset-0 z-50 flex items-center justify-center hidden p-4 bg-black/80 backdrop-blur-sm transition-all duration-300">
+        <div class="bg-white w-full max-w-lg rounded-3xl p-8 shadow-2xl relative">
+            <button onclick="document.getElementById('reviewModal').classList.add('hidden')" class="absolute top-4 right-4 text-gray-400 hover:text-black">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            <h3 class="text-2xl font-bold mb-6">Share Your Experience</h3>
+            <form method="post">
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <input type="text" name="name" placeholder="Your Name" class="bg-gray-50 border p-3 rounded-xl w-full" required>
+                    <input type="text" name="role" placeholder="Role/Company" class="bg-gray-50 border p-3 rounded-xl w-full" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-xs font-bold text-gray-500 mb-2">Rating</label>
+                    <select name="rating" class="bg-gray-50 border p-3 rounded-xl w-full">
+                        <option value="5">5 Stars - Excellent</option>
+                        <option value="4">4 Stars - Good</option>
+                        <option value="3">3 Stars - Average</option>
+                    </select>
+                </div>
+                <textarea name="review" rows="4" placeholder="Your review..." class="bg-gray-50 border p-3 rounded-xl w-full mb-6" required></textarea>
+                <button type="submit" name="submit_review" class="bg-lime-brand w-full py-3 rounded-xl font-bold hover:bg-lime-400 transition-colors">Submit Review</button>
+            </form>
+        </div>
+    </div>
 
     <!-- CTA FOOTER (Screenshot 4 Bottom) -->
     <section class="px-4 md:px-8 max-w-7xl mx-auto pb-10">
@@ -508,9 +443,9 @@
                 <span class="border border-white/30 rounded-full px-4 py-1.5 text-xs uppercase tracking-wider mb-6">Stay In Touch</span>
                 <h2 class="text-4xl md:text-6xl font-bold mb-4">Ready To Talk</h2>
                 <p class="text-gray-300 max-w-lg text-sm mb-8">Feel free to contact us right now. We are pleased to announce our readiness to receive contacts from potential clients.</p>
-                <button class="bg-lime-brand text-black px-8 py-3 rounded-full font-bold hover:scale-105 transition-transform">
+                <a href="contact.php" class="bg-lime-brand text-black px-8 py-3 rounded-full font-bold hover:scale-105 transition-transform">
                     Let's Talk
-                </button>
+                </a>
             </div>
         </div>
     </section>
